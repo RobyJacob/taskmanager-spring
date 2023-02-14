@@ -63,6 +63,7 @@ public class TaskController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTask(@PathVariable("id") Integer taskId) {
+        noteService.deleteAllByTaskId(taskId);
         taskService.deleteTask(taskId);
 
         return ResponseEntity.accepted().body("Successfully deleted");

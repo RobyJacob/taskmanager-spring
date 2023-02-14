@@ -1,6 +1,5 @@
 package com.example.taskmanager.dtos;
 
-import com.example.taskmanager.entities.NoteEntity;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
@@ -28,28 +29,14 @@ public class TaskServiceTests {
         return taskRepository.findAll();
     }
 
-    public List<NoteEntity> getNotesByTaskId(TaskEntity task) {
-        return noteRepository.findAllByTaskEntity(task);
-    }
-
     private TaskEntity getTaskById(Integer taskId) {
-        var task = taskRepository.findById(taskId).orElseThrow(() -> new TaskService.TaskNotFoundException(taskId));
-
-        task.setNotes(getNotesByTaskId(task));
-
-        return task;
+        return taskRepository.findById(taskId).orElseThrow(() -> new TaskService.TaskNotFoundException(taskId));
     }
 
     private TaskEntity addTask(TaskEntity task) {
         task.setDueDate(LocalDate.parse(task.getDueDate().format(dateFormat), dateFormat));
 
         return taskRepository.save(task);
-    }
-
-    public List<NoteEntity> getNotesByTaskId(Integer taskId) {
-        var task = getTaskById(taskId);
-
-        return task.getNotes();
     }
 
     @Test
@@ -89,8 +76,7 @@ public class TaskServiceTests {
 
         var fetchedTask = getTaskById(savedTask.getId());
 
-        assertEquals(savedTask, fetchedTask);
-        assertEquals(List.of(note), fetchedTask.getNotes());
+        assertThat(savedTask).isEqualTo(fetchedTask);
     }
 
     @Test
@@ -111,21 +97,24 @@ public class TaskServiceTests {
     }
 
     @Test
-    public void testGetNotesByTaskId() {
+    public void testDeleteTaskById() {
         TaskEntity task1 = new TaskEntity();
         task1.setCompleted(false);
         task1.setTitle("sample 1");
         task1.setDescription("sample description 1");
         task1.setDueDate(LocalDate.of(2023, 2, 1));
 
-        var savedTask = taskRepository.save(task1);
-
         var note = new NoteEntity();
         note.setBody("sample note 1");
         note.setTaskEntity(task1);
 
-        noteRepository.save(note);
+        var savedTask = taskRepository.save(task1);
+        var savedNote = noteRepository.save(note);
 
-        assertEquals(List.of(note), getNotesByTaskId(savedTask.getId()));
+        noteRepository.deleteAllByTaskEntity(savedTask);
+        taskRepository.delete(savedTask);
+
+        assertThat(taskRepository.findById(savedTask.getId())).isEmpty();
+        assertThat(noteRepository.findById(savedNote.getId())).isEmpty();
     }
 }

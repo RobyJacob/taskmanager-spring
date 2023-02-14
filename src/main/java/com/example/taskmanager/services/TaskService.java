@@ -40,9 +40,7 @@ public class TaskService {
     }
 
     public void deleteTask(Integer taskId) {
-        TaskEntity taskToDelete = getTaskById(taskId);
-
-        taskRepository.delete(taskToDelete);
+        taskRepository.deleteById(taskId);
     }
 
     public TaskEntity updateTask(Integer taskId, NewTaskRequest newTask) {

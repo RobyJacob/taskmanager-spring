@@ -29,6 +29,10 @@ public class NoteService {
         noteRepository.deleteByTaskEntityAndId(taskService.getTaskById(taskId), noteId);
     }
 
+    public void deleteAllByTaskId(Integer taskId) {
+        noteRepository.deleteAllByTaskEntity(taskService.getTaskById(taskId));
+    }
+
     public List<NoteEntity> getNotesByTaskId(Integer taskId) {
         return noteRepository.findAllByTaskEntity(taskService.getTaskById(taskId));
     }
